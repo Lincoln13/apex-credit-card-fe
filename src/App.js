@@ -1,23 +1,43 @@
-import logo from './logo.svg';
 import './App.css';
+import AddCreditCard from './components/AddCreditCard';
+import ShowCreditCards from './components/ShowCreditCards';
+import React from "react";
+import { useState } from 'react';
 
-function App() {
+const App = () => {
+
+  const url = 'http://localhost:8080/aon'
+  const [errorMessage, setErrorMessage] = useState('');
+  const [messageClassName, setMessageClassName] = useState('');
+
+  // Add Task
+  const addCreditCard = async (creditCard) =>  {
+    
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }, 
+      body: JSON.stringify(creditCard)
+    })
+
+    const data = await res.json()
+    setErrorMessage(data.message);
+
+    if (400 === res.status || 500 === res.status) {
+      setMessageClassName('error')
+    } else if (200 === res.status) {
+      setMessageClassName('success')
+    }
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="container">
+      <AddCreditCard onAdd={addCreditCard} />
+      {errorMessage && (
+        <p className={messageClassName}>{errorMessage}</p>
+      )}
+      <ShowCreditCards /> 
     </div>
   );
 }
